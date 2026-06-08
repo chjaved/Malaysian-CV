@@ -1,5 +1,7 @@
+"use client";
 import { useState, useCallback } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
@@ -7,7 +9,7 @@ import { toast } from "sonner";
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const toggleMenu = useCallback(() => setMenuOpen((prev) => !prev), []);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -16,7 +18,7 @@ export function SiteHeader() {
     closeMenu();
     await signOut();
     toast.success("Logged out");
-    void navigate({ to: "/" });
+    router.push("/");
   };
 
   const navLinks = [
@@ -25,10 +27,11 @@ export function SiteHeader() {
     { label: "How It Works", to: "/#how-it-works", isHash: true },
   ];
 
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl font-extrabold tracking-tight text-primary">
             ResuMY
           </span>
@@ -37,11 +40,11 @@ export function SiteHeader() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
-          <Link to="/" className="hover:text-primary transition-colors">Home</Link>
-          <Link to="/linkedin-review" className="hover:text-primary transition-colors">LinkedIn Review</Link>
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link href="/linkedin-review" className="hover:text-primary transition-colors">LinkedIn Review</Link>
           <a href="/#how-it-works" className="hover:text-primary transition-colors">How It Works</a>
           {user && (
-            <Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
+            <Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
           )}
         </nav>
 
@@ -61,11 +64,11 @@ export function SiteHeader() {
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                 Log In
               </Link>
               <Link
-                to="/signup"
+                href="/signup"
                 className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
                 Sign Up
@@ -73,7 +76,7 @@ export function SiteHeader() {
             </>
           )}
           <Link
-            to="/analyze"
+            href="/analyze"
             className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
             Analyze CV
@@ -123,7 +126,7 @@ export function SiteHeader() {
           {user ? (
             <>
               <Link
-                to="/dashboard"
+                href="/dashboard"
                 onClick={closeMenu}
                 className="block rounded-lg px-3 py-2.5 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
               >
@@ -142,14 +145,14 @@ export function SiteHeader() {
           ) : (
             <>
               <Link
-                to="/login"
+                href="/login"
                 onClick={closeMenu}
                 className="block rounded-lg px-3 py-2.5 text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Log In
               </Link>
               <Link
-                to="/signup"
+                href="/signup"
                 onClick={closeMenu}
                 className="block w-full rounded-lg bg-primary px-4 py-3 text-center text-base font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
@@ -158,7 +161,7 @@ export function SiteHeader() {
             </>
           )}
           <Link
-            to="/analyze"
+            href="/analyze"
             onClick={closeMenu}
             className="block w-full rounded-lg bg-primary px-4 py-3 text-center text-base font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
@@ -176,7 +179,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:px-6">
         <p>© 2026 ResuMY. Built for Malaysia.</p>
         <div className="flex items-center gap-4">
-          <Link to="/employer/login" className="text-xs text-muted-foreground/80 hover:text-primary transition-colors">
+          <Link href="/employer/login" className="text-xs text-muted-foreground/80 hover:text-primary transition-colors">
             For Employers
           </Link>
           <p>Made with love in Malaysia 🇲🇾</p>
