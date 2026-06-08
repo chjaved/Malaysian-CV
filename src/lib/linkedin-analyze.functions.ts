@@ -39,8 +39,8 @@ export type LinkedInAnalysis = {
 export const analyzeLinkedIn = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
-    const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-    if (!OPENROUTER_API_KEY) {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
       throw new Error("AI service is not configured. Please contact support.");
     }
 
@@ -63,16 +63,14 @@ Return the structured analysis.`;
 
     let aiRes: Response;
     try {
-      aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          Authorization: `Bearer ${GEMINI_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://resumy.my",
-          "X-Title": "ResuMY",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "gemini-2.5-flash",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
