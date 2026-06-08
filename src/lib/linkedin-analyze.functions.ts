@@ -39,8 +39,8 @@ export type LinkedInAnalysis = {
 export const analyzeLinkedIn = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
-    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-    if (!LOVABLE_API_KEY) {
+    const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+    if (!OPENROUTER_API_KEY) {
       throw new Error("AI service is not configured. Please contact support.");
     }
 
@@ -63,11 +63,13 @@ Return the structured analysis.`;
 
     let aiRes: Response;
     try {
-      aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
+          "HTTP-Referer": "https://resumy.my",
+          "X-Title": "ResuMY",
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
