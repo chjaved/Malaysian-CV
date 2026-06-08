@@ -1,8 +1,9 @@
+"use client";
 import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Briefcase } from "lucide-react";
-import { searchJobs, type JobItem } from "@/lib/jobs.functions";
 import { Skeleton } from "@/components/ui/skeleton";
+
+type JobItem = { job_id: string; job_title: string; employer_name: string; job_city?: string | null; job_country?: string | null; job_employment_type?: string | null; job_apply_link: string; job_posted_at_datetime_utc?: string | null };
 
 type Props = { keywords: string[]; industry?: string };
 
@@ -30,7 +31,6 @@ function prettyType(t?: string | null) {
 }
 
 export function JobRecommendations({ keywords, industry = "" }: Props) {
-  const fetchJobs = useServerFn(searchJobs);
   const [jobs, setJobs] = useState<JobItem[] | null>(null);
   const [matched, setMatched] = useState<string[]>([]);
   const [error, setError] = useState(false);
@@ -40,21 +40,23 @@ export function JobRecommendations({ keywords, industry = "" }: Props) {
     let cancelled = false;
     setJobs(null);
     setError(false);
-    fetchJobs({ data: { keywords, industry } })
+    fetch("/api/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ keywords, industry }),
+    })
+      .then((r) => r.json())
       .then((res) => {
         if (cancelled) return;
-        console.log("[jobs] received", res);
-        setJobs(res.jobs);
+        setJobs(res.jobs ?? []);
         setMatched(res.matchedKeywords ?? []);
       })
       .catch((e) => {
         console.error("Job fetch failed:", e);
         if (!cancelled) setError(true);
       });
-    return () => {
-      cancelled = true;
-    };
-  }, [keywords.join("|"), industry, fetchJobs]);
+    return () => { cancelled = true; };
+  }, [keywords.join("|"), industry]);
 
   const filtered = useMemo(() => {
     if (!jobs) return [];

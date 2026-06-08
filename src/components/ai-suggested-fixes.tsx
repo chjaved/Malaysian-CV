@@ -1,9 +1,10 @@
+"use client";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Copy, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { generateFixes, type AiFix } from "@/lib/fixes.functions";
+
+type AiFix = { issue_title: string; original: string; fix: string };
 
 type Props = {
   cvText: string;
@@ -13,16 +14,19 @@ type Props = {
 };
 
 export function AiSuggestedFixes({ cvText, priorityImprovements, companyType, industry }: Props) {
-  const generate = useServerFn(generateFixes);
   const [loading, setLoading] = useState(false);
   const [fixes, setFixes] = useState<AiFix[] | null>(null);
 
   const onGenerate = async () => {
     setLoading(true);
     try {
-      const { fixes } = await generate({
-        data: { cv_text: cvText, priority_improvements: priorityImprovements, company_type: companyType, industry },
+      const res = await fetch("/api/fixes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cv_text: cvText, priority_improvements: priorityImprovements, company_type: companyType, industry }),
       });
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e?.error || "Failed to generate fixes."); }
+      const { fixes } = await res.json();
       setFixes(fixes);
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to generate fixes. Please try again.");

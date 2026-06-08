@@ -1,5 +1,5 @@
+"use client";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Copy, Download, MessageCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,8 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { generateCoverLetter } from "@/lib/cover-letter.functions";
-import type { AnalysisResult } from "@/lib/analyze.functions";
+import type { AnalysisResult } from "@/lib/types";
 
 type Props = {
   open: boolean;
@@ -24,7 +23,6 @@ type Props = {
 };
 
 export function CoverLetterDialog({ open, onOpenChange, analysis, companyType }: Props) {
-  const generate = useServerFn(generateCoverLetter);
   const [fullName, setFullName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -51,16 +49,14 @@ export function CoverLetterDialog({ open, onOpenChange, analysis, companyType }:
     }
     setLoading(true);
     try {
-      const res = await generate({
-        data: {
-          full_name: fullName.trim() || undefined,
-          job_title: jobTitle.trim(),
-          company_name: companyName.trim(),
-          company_type: companyType,
-          analysis,
-        },
+      const res = await fetch("/api/cover-letter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ full_name: fullName.trim() || undefined, job_title: jobTitle.trim(), company_name: companyName.trim(), company_type: companyType, analysis }),
       });
-      setLetter(res.letter);
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e?.error || "Failed to generate cover letter."); }
+      const data = await res.json();
+      setLetter(data.letter);
     } catch (e) {
       toast.error("Couldn't generate cover letter", {
         description: e instanceof Error ? e.message : "Please try again.",
