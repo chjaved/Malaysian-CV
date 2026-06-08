@@ -13,4 +13,9 @@ export default defineConfig({
     nitro(),
     react(),
   ],
+  build: {
+    rollupOptions: {
+      external: ["canvas"],
+    },
+  },
 });
